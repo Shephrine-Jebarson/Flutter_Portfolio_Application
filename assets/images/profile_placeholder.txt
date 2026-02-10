@@ -1,0 +1,2 @@
+Place your profile image here as 'profile.jpg' or 'profile.png'
+The image should be approximately 300x300 pixels for best results.
