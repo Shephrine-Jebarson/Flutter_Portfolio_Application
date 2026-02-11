@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../profile.dart';
-import '../../models/contact_message.dart';
-import '../../services/api_service.dart';
+import '../../data/models/contact_message.dart';
+import '../../data/services/api_service.dart';
 
 class ContactInfo extends StatefulWidget {
   final Profile profile;
@@ -60,14 +60,7 @@ class _ContactInfoState extends State<ContactInfo> {
           ),
         ),
         const SizedBox(height: 12),
-        Container(
-          width: 60,
-          height: 4,
-          decoration: BoxDecoration(
-            color: const Color(0xFF4ecdc4),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
+        const _ContactDivider(),
         const SizedBox(height: 40),
         Container(
           padding: const EdgeInsets.all(40),
@@ -120,214 +113,15 @@ class _ContactInfoState extends State<ContactInfo> {
                       _buildTextField('Your Message', _messageController, 'Please enter your message', maxLines: 5),
                       const SizedBox(height: 30),
                       _sendMessageFuture == null
-                          ? Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    const Color(0xFF00d4ff),
-                                    const Color(0xFF4ecdc4),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: _sendMessage,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Send Message',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            )
-                          : FutureBuilder<ContactMessage>(
-                              future: _sendMessageFuture,
-                              builder: (context, snapshot) {
-                                // Loading State
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.withOpacity(0.3),
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                    child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                          ),
-                                        ),
-                                        SizedBox(width: 12),
-                                        Text(
-                                          'Sending...',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }
-                                
-                                // Error State
-                                if (snapshot.hasError) {
-                                  return Column(
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(vertical: 12),
-                                        decoration: BoxDecoration(
-                                          color: Colors.red.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(25),
-                                          border: Border.all(color: Colors.red, width: 1),
-                                        ),
-                                        child: Column(
-                                          children: [
-                                            const Icon(Icons.error, color: Colors.red, size: 24),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              'Error: ${snapshot.error}',
-                                              style: const TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 14,
-                                              ),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Container(
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              const Color(0xFF00d4ff),
-                                              const Color(0xFF4ecdc4),
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(25),
-                                        ),
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _sendMessageFuture = null;
-                                            });
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.transparent,
-                                            foregroundColor: Colors.white,
-                                            elevation: 0,
-                                            padding: const EdgeInsets.symmetric(vertical: 16),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(25),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Try Again',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }
-                                
-                                // Success State
-                                if (snapshot.hasData) {
-                                  return Column(
-                                    children: [
-                                      Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.symmetric(vertical: 16),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(25),
-                                          border: Border.all(color: Colors.green, width: 1),
-                                        ),
-                                        child: const Column(
-                                          children: [
-                                            Icon(Icons.check_circle, color: Colors.green, size: 32),
-                                            SizedBox(height: 8),
-                                            Text(
-                                              'Message sent successfully!',
-                                              style: TextStyle(
-                                                color: Colors.green,
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Container(
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              const Color(0xFF00d4ff),
-                                              const Color(0xFF4ecdc4),
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(25),
-                                        ),
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _sendMessageFuture = null;
-                                              _nameController.clear();
-                                              _emailController.clear();
-                                              _messageController.clear();
-                                            });
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.transparent,
-                                            foregroundColor: Colors.white,
-                                            elevation: 0,
-                                            padding: const EdgeInsets.symmetric(vertical: 16),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(25),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Send Another Message',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }
-                                
-                                return const SizedBox();
-                              },
-                            ),
+                          ? _SendButton(onPressed: _sendMessage)
+                          : _MessageStatusBuilder(future: _sendMessageFuture!, onReset: () {
+                              setState(() {
+                                _sendMessageFuture = null;
+                                _nameController.clear();
+                                _emailController.clear();
+                                _messageController.clear();
+                              });
+                            }),
                     ],
                   ),
                 ),
@@ -424,6 +218,242 @@ class _ContactInfoState extends State<ContactInfo> {
           errorStyle: const TextStyle(
             color: Color(0xFFff6b6b),
             fontSize: 12,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ContactDivider extends StatelessWidget {
+  const _ContactDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 60,
+      height: 4,
+      decoration: BoxDecoration(
+        color: const Color(0xFF4ecdc4),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+}
+
+class _SendButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const _SendButton({required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF00d4ff), Color(0xFF4ecdc4)],
+        ),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        child: const Text(
+          'Send Message',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MessageStatusBuilder extends StatelessWidget {
+  final Future<ContactMessage> future;
+  final VoidCallback onReset;
+
+  const _MessageStatusBuilder({required this.future, required this.onReset});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<ContactMessage>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const _LoadingState();
+        }
+        if (snapshot.hasError) {
+          return _ErrorState(error: snapshot.error.toString(), onRetry: onReset);
+        }
+        if (snapshot.hasData) {
+          return _SuccessState(onReset: onReset);
+        }
+        return const SizedBox();
+      },
+    );
+  }
+}
+
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.grey.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            ),
+          ),
+          SizedBox(width: 12),
+          Text(
+            'Sending...',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  final String error;
+  final VoidCallback onRetry;
+
+  const _ErrorState({required this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.red.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: Colors.red, width: 1),
+          ),
+          child: Column(
+            children: [
+              const Icon(Icons.error, color: Colors.red, size: 24),
+              const SizedBox(height: 8),
+              Text(
+                'Error: $error',
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 14,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        _ActionButton(label: 'Try Again', onPressed: onRetry),
+      ],
+    );
+  }
+}
+
+class _SuccessState extends StatelessWidget {
+  final VoidCallback onReset;
+
+  const _SuccessState({required this.onReset});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          decoration: BoxDecoration(
+            color: Colors.green.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: Colors.green, width: 1),
+          ),
+          child: const Column(
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 32),
+              SizedBox(height: 8),
+              Text(
+                'Message sent successfully!',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        _ActionButton(label: 'Send Another Message', onPressed: onReset),
+      ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+
+  const _ActionButton({required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF00d4ff), Color(0xFF4ecdc4)],
+        ),
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

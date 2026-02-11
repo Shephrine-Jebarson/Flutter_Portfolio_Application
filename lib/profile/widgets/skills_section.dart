@@ -17,69 +17,82 @@ class SkillsSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.code,
-                  color: isDark ? theme.colorScheme.primary : const Color(0xFF0D47A1),
-                  size: 24,
-                ),
-              ),
-              SizedBox(width: AppSpacing.md),
-              Text(
-                'Technical Skills',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.onSurface,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: AppSpacing.lg),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: skills.map((skill) => _buildSkillChip(skill)).toList(),
-          ),
+            _SectionHeader(isDark: isDark),
+            SizedBox(height: AppSpacing.lg),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: skills.map((skill) => _SkillChip(skill: skill)).toList(),
+            ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildSkillChip(String skill) {
-    return Builder(
-      builder: (context) {
-        final theme = Theme.of(context);
-        final isDark = theme.brightness == Brightness.dark;
-        
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+class _SectionHeader extends StatelessWidget {
+  final bool isDark;
+
+  const _SectionHeader({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(AppSpacing.sm),
           decoration: BoxDecoration(
             color: theme.colorScheme.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(25),
-            border: Border.all(
-              color: theme.colorScheme.primary,
-              width: 1,
-            ),
+            borderRadius: BorderRadius.circular(8),
           ),
-          child: Text(
-            skill,
-            style: TextStyle(
-              color: isDark ? theme.colorScheme.primary : const Color(0xFF0D47A1),
-              fontWeight: FontWeight.w500,
-              fontSize: 14,
-            ),
+          child: Icon(
+            Icons.code,
+            color: isDark ? theme.colorScheme.primary : const Color(0xFF0D47A1),
+            size: 24,
           ),
-        );
-      },
+        ),
+        SizedBox(width: AppSpacing.md),
+        Text(
+          'Technical Skills',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SkillChip extends StatelessWidget {
+  final String skill;
+
+  const _SkillChip({required this.skill});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: theme.colorScheme.primary, width: 1),
+      ),
+      child: Text(
+        skill,
+        style: TextStyle(
+          color: isDark ? theme.colorScheme.primary : const Color(0xFF0D47A1),
+          fontWeight: FontWeight.w500,
+          fontSize: 14,
+        ),
+      ),
     );
   }
 }

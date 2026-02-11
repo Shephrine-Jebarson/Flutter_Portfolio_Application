@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
-import '../profile/profile.dart';
-import '../profile/widgets/profile_header.dart';
-import '../profile/widgets/project_counter.dart';
-import '../profile/widgets/skills_section.dart';
-import '../profile/widgets/achievements_section.dart';
-import '../profile/widgets/contact_info.dart';
-import '../widgets/portfolio_projects_section.dart';
-import '../providers/theme_provider.dart';
-import '../theme/app_spacing.dart';
+import '../../../profile/profile.dart';
+import '../../../profile/widgets/profile_header.dart';
+import '../../../profile/widgets/project_counter.dart';
+import '../../../profile/widgets/skills_section.dart';
+import '../../../profile/widgets/achievements_section.dart';
+import '../../../profile/widgets/contact_info.dart';
+import '../../../widgets/portfolio_projects_section.dart';
+import '../../../providers/theme_provider.dart';
+import '../../../theme/app_spacing.dart';
 import 'package:provider/provider.dart';
-import 'project_list_screen.dart';
+import '../projects/project_list_screen.dart';
 
+/// Portfolio screen displaying complete profile information
+/// 
+/// Shows profile header, skills, projects, achievements, and contact form
 class PortfolioScreen extends StatefulWidget {
   const PortfolioScreen({super.key});
 
@@ -21,7 +24,8 @@ class PortfolioScreen extends StatefulWidget {
 class _PortfolioScreenState extends State<PortfolioScreen> {
   int _projectCount = 3;
 
-  final Profile _profile = const Profile(
+  /// Profile data - const for performance
+  static const Profile _profile = Profile(
     name: 'Shephrine Jebarson',
     role: 'Flutter Developer Intern',
     bio: 'Currently working as a Flutter Developer Intern, I focus on building clean, responsive, and user-friendly mobile applications. I enjoy turning ideas into functional interfaces and continuously improving my skills by working on real-world projects using Flutter and Dart.',
@@ -51,18 +55,9 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
     ],
   );
 
-  void _increaseCount() {
-    setState(() {
-      _projectCount++;
-    });
-  }
-
-  void _resetCount() {
-    setState(() {
-      _projectCount = 0;
-    });
-  }
-
+  void _increaseCount() => setState(() => _projectCount++);
+  void _resetCount() => setState(() => _projectCount = 0);
+  
   void _navigateToProjects() {
     Navigator.push(
       context,
@@ -81,15 +76,7 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
       appBar: AppBar(
         title: const Text('Portfolio'),
         actions: [
-          Consumer<ThemeProvider>(
-            builder: (context, themeProvider, _) {
-              return IconButton(
-                onPressed: themeProvider.toggleTheme,
-                icon: Icon(themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode),
-                tooltip: themeProvider.isDarkMode ? 'Light Mode' : 'Dark Mode',
-              );
-            },
-          ),
+          const _ThemeToggleButton(),
           SizedBox(width: AppSpacing.sm),
         ],
       ),
@@ -121,6 +108,22 @@ class _PortfolioScreenState extends State<PortfolioScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Theme toggle button - Extracted for reusability
+class _ThemeToggleButton extends StatelessWidget {
+  const _ThemeToggleButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final isDarkMode = context.select<ThemeProvider, bool>((p) => p.isDarkMode);
+    
+    return IconButton(
+      onPressed: () => context.read<ThemeProvider>().toggleTheme(),
+      icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+      tooltip: isDarkMode ? 'Light Mode' : 'Dark Mode',
     );
   }
 }

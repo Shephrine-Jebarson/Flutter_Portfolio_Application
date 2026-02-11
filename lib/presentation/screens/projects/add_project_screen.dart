@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../models/project.dart';
-import '../providers/project_provider.dart';
-import '../theme/app_spacing.dart';
+import '../../../data/models/project.dart';
+import '../../../providers/project_provider.dart';
+import '../../../theme/app_spacing.dart';
 
 class AddProjectScreen extends StatefulWidget {
   final Project? project;

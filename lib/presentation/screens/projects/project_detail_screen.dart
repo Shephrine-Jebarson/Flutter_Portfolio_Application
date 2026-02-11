@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../models/project.dart';
-import '../models/sample_data.dart';
+import '../../../data/models/project.dart';
+import '../../../data/models/sample_data.dart';
 
 class ProjectDetailScreen extends StatelessWidget {
   final Project project;

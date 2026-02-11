@@ -1,7 +1,6 @@
 import 'project.dart';
 
 /// Sample project data for the portfolio
-/// This list contains all the projects to be displayed in the app
 final List<Project> sampleProjects = [
   Project(
     id: 1,
@@ -61,7 +60,6 @@ final List<Project> sampleProjects = [
 ];
 
 /// Detailed project content for the project detail screen
-/// Maps project ID to detailed information sections
 final Map<int, Map<String, String>> projectDetails = {
   1: {
     'overview': 'The Voting System is a console-based application developed in C that allows users to cast votes in a secure and structured manner. The primary objective of this project was to understand low-level programming concepts and implement a reliable voting mechanism with controlled user input.',

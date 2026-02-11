@@ -1,14 +1,9 @@
-// Interactive project counter widget with star rating system
-// This widget demonstrates state management, animations, and user interaction
-// It serves as both a counter and a rating system with visual feedback
-
 import 'package:flutter/material.dart';
 
-// StatefulWidget that accepts counter value and callback functions from parent
 class ProjectCounter extends StatefulWidget {
-  final int count;              // Current counter value from parent
-  final VoidCallback onIncrease; // Callback function to increment counter
-  final VoidCallback onReset;    // Callback function to reset counter
+  final int count;
+  final VoidCallback onIncrease;
+  final VoidCallback onReset;
 
   const ProjectCounter({
     super.key,
@@ -21,40 +16,27 @@ class ProjectCounter extends StatefulWidget {
   State<ProjectCounter> createState() => _ProjectCounterState();
 }
 
-// State class with animation controllers for visual effects
-class _ProjectCounterState extends State<ProjectCounter>
-    with TickerProviderStateMixin {
-  // Animation controllers for bounce and glow effects
-  late AnimationController _bounceController; // Controls star bounce animation
-  late AnimationController _glowController;   // Controls glow effect animation
-  late Animation<double> _bounceAnimation;    // Bounce animation values
-  late Animation<double> _glowAnimation;      // Glow animation values
-  
-  // Internal rating state (0-5 stars)
+class _ProjectCounterState extends State<ProjectCounter> with TickerProviderStateMixin {
+  late AnimationController _bounceController;
+  late AnimationController _glowController;
+  late Animation<double> _bounceAnimation;
+  late Animation<double> _glowAnimation;
   int _rating = 0;
 
   @override
   void initState() {
     super.initState();
-    
-    // Initialize bounce animation controller (300ms duration)
     _bounceController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    
-    // Initialize glow animation controller (800ms duration)
     _glowController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
-    // Create bounce animation that scales from 1.0 to 1.3
     _bounceAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
       CurvedAnimation(parent: _bounceController, curve: Curves.elasticOut),
     );
-    
-    // Create glow animation that fades from 0.0 to 1.0
     _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
     );
@@ -62,42 +44,39 @@ class _ProjectCounterState extends State<ProjectCounter>
 
   @override
   void dispose() {
-    // Clean up animation controllers to prevent memory leaks
     _bounceController.dispose();
     _glowController.dispose();
     super.dispose();
   }
 
-  // Trigger both bounce and glow animations when rating changes
   void _animateRating() {
-    // Start bounce animation and reverse it when complete
-    _bounceController.forward().then((_) {
-      _bounceController.reverse();
-    });
-    
-    // Start glow animation and reverse it when complete
-    _glowController.forward().then((_) {
-      _glowController.reverse();
-    });
+    _bounceController.forward().then((_) => _bounceController.reverse());
+    _glowController.forward().then((_) => _glowController.reverse());
   }
 
-  // Increase rating by 1 (maximum 5 stars)
   void _increaseRating() {
     if (_rating < 5) {
-      setState(() {
-        _rating++; // Increment internal rating
-      });
-      _animateRating();        // Trigger animations
-      widget.onIncrease();     // Call parent's increase function
+      setState(() => _rating++);
+      _animateRating();
+      widget.onIncrease();
     }
   }
 
-  // Reset rating to 0 stars
   void _resetRating() {
-    setState(() {
-      _rating = 0; // Reset internal rating
-    });
-    widget.onReset(); // Call parent's reset function
+    setState(() => _rating = 0);
+    widget.onReset();
+  }
+
+  String _getRatingText() {
+    const texts = [
+      'Click to rate my work!',
+      'Thanks for the feedback!',
+      'Appreciate it! Getting better!',
+      'Great! Keep the momentum!',
+      'Awesome! Almost perfect!',
+      'Outstanding! You are amazing!',
+    ];
+    return texts[_rating];
   }
 
   @override
@@ -111,20 +90,11 @@ class _ProjectCounterState extends State<ProjectCounter>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isDark
-              ? [
-                  const Color(0xFF1a1a2e),
-                  const Color(0xFF16213e),
-                ]
-              : [
-                  const Color(0xFF90CAF9),
-                  const Color(0xFF64B5F6),
-                ],
+              ? [const Color(0xFF1a1a2e), const Color(0xFF16213e)]
+              : [const Color(0xFF90CAF9), const Color(0xFF64B5F6)],
         ),
         borderRadius: BorderRadius.circular(25),
-        border: Border.all(
-          color: const Color(0xFFffd700).withOpacity(0.3),
-          width: 2,
-        ),
+        border: Border.all(color: const Color(0xFFffd700).withOpacity(0.3), width: 2),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFFffd700).withOpacity(0.1),
@@ -135,81 +105,15 @@ class _ProjectCounterState extends State<ProjectCounter>
       ),
       child: Column(
         children: [
-          // Header section with icon and title
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Star icon in golden container
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFffd700).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.star_rate,
-                  color: Color(0xFFffd700),
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              const Text(
-                'Rate My Work',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFffd700),
-                ),
-              ),
-            ],
+          const _Header(),
+          const SizedBox(height: 32),
+          _StarRating(
+            rating: _rating,
+            bounceAnimation: _bounceAnimation,
+            glowAnimation: _glowAnimation,
+            isDark: isDark,
           ),
           const SizedBox(height: 32),
-          
-          // Star rating display with animations
-          AnimatedBuilder(
-            animation: _glowAnimation,
-            // Generate 5 stars in a row
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(5, (index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: ScaleTransition(
-                    // Apply bounce animation only to filled stars
-                    scale: index < _rating ? _bounceAnimation : 
-                           const AlwaysStoppedAnimation(1.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        // Add glow effect to filled stars
-                        boxShadow: index < _rating ? [
-                          BoxShadow(
-                            color: const Color(0xFFffd700).withOpacity(
-                              0.6 * _glowAnimation.value
-                            ),
-                            blurRadius: 15 * _glowAnimation.value,
-                            spreadRadius: 3 * _glowAnimation.value,
-                          ),
-                        ] : [],
-                      ),
-                      child: Icon(
-                        // Show filled or empty star based on rating
-                        index < _rating ? Icons.star : Icons.star_border,
-                        size: 50,
-                        // Golden color for filled stars, gray for empty
-                        color: index < _rating 
-                            ? const Color(0xFFffd700)
-                            : (isDark ? Colors.white30 : const Color(0xFF1565C0).withOpacity(0.3)),
-                      ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-            builder: (context, child) => child!,
-          ),
-          const SizedBox(height: 32),
-          
           Text(
             _getRatingText(),
             style: TextStyle(
@@ -219,26 +123,22 @@ class _ProjectCounterState extends State<ProjectCounter>
             ),
           ),
           const SizedBox(height: 40),
-          
-          // Action buttons row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Rate+ button (disabled when at 5 stars)
-              _buildActionButton(
+              _ActionButton(
                 onPressed: _increaseRating,
                 icon: Icons.add_reaction,
                 label: 'Rate +',
-                color: const Color(0xFFffd700), // Golden color
-                isEnabled: _rating < 5, // Disable at maximum rating
+                color: const Color(0xFFffd700),
+                isEnabled: _rating < 5,
               ),
-              // Reset button (disabled when at 0 stars)
-              _buildActionButton(
+              _ActionButton(
                 onPressed: _resetRating,
                 icon: Icons.refresh,
                 label: 'Reset',
-                color: const Color(0xFFff6b6b), // Red color
-                isEnabled: _rating > 0, // Disable when no rating
+                color: const Color(0xFFff6b6b),
+                isEnabled: _rating > 0,
               ),
             ],
           ),
@@ -246,61 +146,128 @@ class _ProjectCounterState extends State<ProjectCounter>
       ),
     );
   }
+}
 
-  // Get appropriate feedback text based on current rating
-  String _getRatingText() {
-    switch (_rating) {
-      case 0:
-        return 'Click to rate my work!';
-      case 1:
-        return 'Thanks for the feedback!';
-      case 2:
-        return 'Appreciate it! Getting better!';
-      case 3:
-        return 'Great! Keep the momentum!';
-      case 4:
-        return 'Awesome! Almost perfect!';
-      case 5:
-        return 'Outstanding! You are amazing!';
-      default:
-        return '';
-    }
+class _Header extends StatelessWidget {
+  const _Header();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFffd700).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.star_rate, color: Color(0xFFffd700), size: 28),
+        ),
+        const SizedBox(width: 16),
+        const Text(
+          'Rate My Work',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFffd700),
+          ),
+        ),
+      ],
+    );
   }
+}
 
-  // Helper method to build styled action buttons
-  Widget _buildActionButton({
-    required VoidCallback onPressed,  // Button callback function
-    required IconData icon,           // Button icon
-    required String label,            // Button text
-    required Color color,             // Button color theme
-    required bool isEnabled,          // Enable/disable state
-  }) {
+class _StarRating extends StatelessWidget {
+  final int rating;
+  final Animation<double> bounceAnimation;
+  final Animation<double> glowAnimation;
+  final bool isDark;
+
+  const _StarRating({
+    required this.rating,
+    required this.bounceAnimation,
+    required this.glowAnimation,
+    required this.isDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: glowAnimation,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(5, (index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: ScaleTransition(
+              scale: index < rating ? bounceAnimation : const AlwaysStoppedAnimation(1.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: index < rating ? [
+                    BoxShadow(
+                      color: const Color(0xFFffd700).withOpacity(0.6 * glowAnimation.value),
+                      blurRadius: 15 * glowAnimation.value,
+                      spreadRadius: 3 * glowAnimation.value,
+                    ),
+                  ] : [],
+                ),
+                child: Icon(
+                  index < rating ? Icons.star : Icons.star_border,
+                  size: 50,
+                  color: index < rating 
+                      ? const Color(0xFFffd700)
+                      : (isDark ? Colors.white30 : const Color(0xFF1565C0).withOpacity(0.3)),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+      builder: (context, child) => child!,
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final VoidCallback onPressed;
+  final IconData icon;
+  final String label;
+  final Color color;
+  final bool isEnabled;
+
+  const _ActionButton({
+    required this.onPressed,
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.isEnabled,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      // Custom border and gradient decoration
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
         border: Border.all(
-          // Use color when enabled, gray when disabled
-          color: isEnabled ? color : Colors.grey.shade600, 
-          width: 2
+          color: isEnabled ? color : Colors.grey.shade600,
+          width: 2,
         ),
-        // Gradient background only when enabled
         gradient: isEnabled ? LinearGradient(
           colors: [color.withOpacity(0.1), color.withOpacity(0.05)],
         ) : null,
       ),
       child: ElevatedButton.icon(
-        onPressed: isEnabled ? onPressed : null, // Disable when needed
+        onPressed: isEnabled ? onPressed : null,
         icon: Icon(icon, size: 20),
         label: Text(label),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent, // Transparent to show gradient
+          backgroundColor: Colors.transparent,
           foregroundColor: isEnabled ? color : Colors.grey.shade600,
-          elevation: 0, // Flat design
+          elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
         ),
       ),
     );
