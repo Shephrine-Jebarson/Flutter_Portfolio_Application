@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../data/models/project.dart';
+import '../features/projects/domain/entities/project_entity.dart';
 import '../theme/app_spacing.dart';
 
 class ProjectCard extends StatefulWidget {
-  final Project project;
+  final ProjectEntity project;
   final VoidCallback onTap;
   final VoidCallback? onEdit;
 

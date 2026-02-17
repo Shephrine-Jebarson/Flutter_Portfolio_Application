@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/project_provider.dart';
+import '../../../features/projects/presentation/providers/project_provider.dart';
 import '../../../providers/theme_provider.dart';
 import '../../../theme/app_spacing.dart';
 import '../portfolio/portfolio_screen.dart';

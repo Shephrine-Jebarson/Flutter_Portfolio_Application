@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import '../../../providers/project_provider.dart';
+import '../../../features/projects/presentation/providers/project_provider.dart';
 import '../../../widgets/project_card.dart';
 import '../../../widgets/empty_state.dart';
-import '../../../data/models/post.dart';
-import '../../../data/services/api_service.dart';
 import 'project_detail_screen.dart';
 import 'add_project_screen.dart';
 
@@ -115,111 +113,13 @@ class _ProjectList extends StatelessWidget {
   }
 }
 
-/// Empty state with API posts preview
+/// Empty state
 class _EmptyStateWithPosts extends StatelessWidget {
   const _EmptyStateWithPosts();
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Expanded(child: EmptyState()),
-        Container(
-          height: 300,
-          margin: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            color: Colors.white.withOpacity(0.1),
-            border: Border.all(color: Colors.white.withOpacity(0.2)),
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  'Latest API Posts',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const Expanded(child: _ApiPostsList()),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// API posts list
-class _ApiPostsList extends StatelessWidget {
-  const _ApiPostsList();
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Post>>(
-      future: ApiService.fetchPosts(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Error: ${snapshot.error}',
-              style: const TextStyle(color: Colors.red),
-            ),
-          );
-        }
-        if (snapshot.hasData) {
-          final posts = snapshot.data!.take(3).toList();
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: posts.length,
-            itemBuilder: (context, index) => _PostCard(post: posts[index]),
-          );
-        }
-        return const Center(
-          child: Text('No data available', style: TextStyle(color: Colors.white)),
-        );
-      },
-    );
-  }
-}
-
-/// Individual post card
-class _PostCard extends StatelessWidget {
-  final Post post;
-  
-  const _PostCard({required this.post});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      color: Colors.white.withOpacity(0.1),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: const Color(0xFF00d4ff),
-          child: Text('${post.id}'),
-        ),
-        title: Text(
-          post.title,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(
-          post.body,
-          style: TextStyle(color: Colors.white.withOpacity(0.7)),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ),
-    );
+    return const EmptyState();
   }
 }
 

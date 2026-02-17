@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../../data/models/project.dart';
-import '../../../providers/project_provider.dart';
+import '../../../features/projects/domain/entities/project_entity.dart';
+import '../../../features/projects/presentation/providers/project_provider.dart';
 import '../../../theme/app_spacing.dart';
 
 class AddProjectScreen extends StatefulWidget {
-  final Project? project;
+  final ProjectEntity? project;
   
   const AddProjectScreen({super.key, this.project});
 
@@ -80,7 +80,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     if (_formKey.currentState!.validate()) {
       final projectProvider = context.read<ProjectProvider>();
       
-      final project = Project(
+      final project = ProjectEntity(
         id: widget.project?.id ?? projectProvider.projectCount + 1,
         title: _titleController.text,
         category: _categoryController.text.isEmpty ? 'General' : _categoryController.text,
@@ -94,23 +94,29 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
       if (widget.project != null) {
         await projectProvider.updateProject(project);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Project "${project.title}" updated successfully!'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Project "${project.title}" updated successfully!'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       } else {
         await projectProvider.addProject(project);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Project "${project.title}" added successfully!'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Project "${project.title}" added successfully!'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
 
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     }
   }
 

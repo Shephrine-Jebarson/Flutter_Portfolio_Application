@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../data/models/project.dart';
+import '../../../features/projects/domain/entities/project_entity.dart';
 import '../../../data/models/sample_data.dart';
 
 class ProjectDetailScreen extends StatelessWidget {
-  final Project project;
+  final ProjectEntity project;
 
   const ProjectDetailScreen({super.key, required this.project});
 
