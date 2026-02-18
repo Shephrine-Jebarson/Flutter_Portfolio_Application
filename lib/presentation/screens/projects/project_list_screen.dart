@@ -8,14 +8,41 @@ import '../../../widgets/empty_state.dart';
 import 'project_detail_screen.dart';
 import 'add_project_screen.dart';
 
-/// Project list screen - Displays all projects with management options
-/// 
-/// Features:
-/// - Project list with animations
-/// - Add/Edit functionality
-/// - Empty state with API posts
-class ProjectListScreen extends StatelessWidget {
+/// Project list screen with pagination
+class ProjectListScreen extends StatefulWidget {
   const ProjectListScreen({super.key});
+
+  @override
+  State<ProjectListScreen> createState() => _ProjectListScreenState();
+}
+
+class _ProjectListScreenState extends State<ProjectListScreen> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_isBottom) {
+      context.read<ProjectProvider>().loadMoreProjects();
+    }
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +67,7 @@ class ProjectListScreen extends StatelessWidget {
           child: Column(
             children: [
               _AppBar(isDark: isDark),
-              const Expanded(child: _ProjectList()),
+              Expanded(child: _ProjectList(scrollController: _scrollController)),
             ],
           ),
         ),
@@ -103,13 +130,15 @@ class _AppBar extends StatelessWidget {
 
 /// Project list or empty state
 class _ProjectList extends StatelessWidget {
-  const _ProjectList();
+  final ScrollController scrollController;
+  
+  const _ProjectList({required this.scrollController});
 
   @override
   Widget build(BuildContext context) {
     final projects = context.select<ProjectProvider, int>((p) => p.projects.length);
     
-    return projects == 0 ? const _EmptyStateWithPosts() : const _ProjectGrid();
+    return projects == 0 ? const _EmptyStateWithPosts() : _ProjectGrid(scrollController: scrollController);
   }
 }
 
@@ -123,20 +152,30 @@ class _EmptyStateWithPosts extends StatelessWidget {
   }
 }
 
-/// Grid of project cards
+/// Grid of project cards with pagination
 class _ProjectGrid extends StatelessWidget {
-  const _ProjectGrid();
+  final ScrollController scrollController;
+  
+  const _ProjectGrid({required this.scrollController});
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ProjectProvider>(
       builder: (context, provider, _) {
         return ListView.builder(
+          controller: scrollController,
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          itemCount: provider.projects.length,
+          itemCount: provider.projects.length + (provider.hasMore ? 1 : 0),
           itemBuilder: (context, index) {
+            if (index == provider.projects.length) {
+              return const Padding(
+                padding: EdgeInsets.all(16),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
             final project = provider.projects[index];
             return ProjectCard(
+              key: ValueKey(project.id),
               project: project,
               onTap: () => _navigateToDetail(context, project),
               onEdit: () => _navigateToEdit(context, project),
