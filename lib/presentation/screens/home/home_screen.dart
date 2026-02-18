@@ -7,6 +7,7 @@ import '../../../features/projects/presentation/providers/project_provider.dart'
 import '../../../providers/theme_provider.dart';
 import '../../../theme/app_spacing.dart';
 import '../portfolio/portfolio_screen.dart';
+import '../posts/paginated_posts_screen.dart';
 
 /// Home screen - Landing page with profile overview
 /// 
@@ -91,6 +92,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                         _DescriptionCard(isDark: isDark).animate().fadeIn(delay: 500.ms).slideY(begin: 0.3, end: 0),
                         const _StatsRow().animate().fadeIn(delay: 700.ms).slideY(begin: 0.3, end: 0),
+                        _ViewPostsButton(isDark: isDark).animate().fadeIn(delay: 850.ms).scale(begin: const Offset(0.8, 0.8)),
                         _ExploreButton(isDark: isDark).animate().fadeIn(delay: 900.ms).scale(begin: const Offset(0.8, 0.8)),
                         SizedBox(height: AppSpacing.md),
                       ],
@@ -525,6 +527,57 @@ class _ExploreButton extends StatelessWidget {
               Icons.arrow_forward_rounded,
               color: isDark ? Colors.white : Colors.black,
               size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// View posts button
+class _ViewPostsButton extends StatelessWidget {
+  final bool isDark;
+
+  const _ViewPostsButton({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 50,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(color: const Color(0xFF00d4ff), width: 2),
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PaginatedPostsScreen()),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.article_outlined,
+              color: isDark ? const Color(0xFF00d4ff) : const Color(0xFF0D47A1),
+              size: 20,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'View API Posts',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: isDark ? const Color(0xFF00d4ff) : const Color(0xFF0D47A1),
+              ),
             ),
           ],
         ),

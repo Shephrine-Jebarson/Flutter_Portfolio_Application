@@ -3,13 +3,19 @@ import 'package:http/http.dart' as http;
 import '../models/post.dart';
 import '../models/contact_message.dart';
 
+/// API service for handling network requests
 class ApiService {
   static const String baseUrl = 'https://jsonplaceholder.typicode.com';
 
-  static Future<List<Post>> fetchPosts() async {
+  /// Fetches paginated posts from API
+  /// 
+  /// [page] - Page number (1-indexed)
+  /// [limit] - Number of items per page
+  static Future<List<Post>> fetchPosts({int page = 1, int limit = 10}) async {
     try {
+      final start = (page - 1) * limit;
       final response = await http.get(
-        Uri.parse('$baseUrl/posts'),
+        Uri.parse('$baseUrl/posts?_start=$start&_limit=$limit'),
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache',
@@ -27,6 +33,7 @@ class ApiService {
     }
   }
 
+  /// Sends contact message to API
   static Future<ContactMessage> sendContactMessage(ContactMessage message) async {
     try {
       final response = await http.post(

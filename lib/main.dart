@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'injection_container.dart';
 import 'providers/theme_provider.dart';
+import 'providers/pagination_provider.dart';
 import 'presentation/screens/home/home_screen.dart';
 import 'theme/app_theme.dart';
 
@@ -25,6 +26,7 @@ class CombinedPortfolioApp extends StatelessWidget {
           create: (_) => InjectionContainer.getProjectProvider()..loadProjects(),
         ),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => PaginationProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, _) {
