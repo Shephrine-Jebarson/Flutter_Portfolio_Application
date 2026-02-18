@@ -572,7 +572,7 @@ class _ViewPostsButton extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Text(
-              'View API Posts',
+              'Paginated Posts',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,

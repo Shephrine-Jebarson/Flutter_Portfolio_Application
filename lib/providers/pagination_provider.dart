@@ -15,7 +15,7 @@ class PaginationProvider extends ChangeNotifier {
   String? _error;
   
   int _currentPage = 1;
-  static const int _pageSize = 10;
+  static const int _pageSize = 3;
   bool _hasMore = true;
   bool _isLoadingMore = false;
 
