@@ -6,9 +6,10 @@ import '../../domain/repositories/project_repository.dart';
 import '../datasources/project_local_datasource.dart';
 import '../datasources/project_remote_datasource.dart';
 import '../models/project_model.dart';
+import '../models/project_local_model.dart';
 
-/// Repository implementation
-/// Connects data sources to domain layer
+/// Repository implementation with offline support
+/// Syncs between remote API and local database
 class ProjectRepositoryImpl implements ProjectRepository {
   final ProjectRemoteDataSource remoteDataSource;
   final ProjectLocalDataSource localDataSource;
@@ -21,40 +22,38 @@ class ProjectRepositoryImpl implements ProjectRepository {
   @override
   Future<Either<Failure, List<ProjectEntity>>> getProjects() async {
     try {
-      // Try to get from remote
+      // Try remote first
       final remoteProjects = await remoteDataSource.getProjects();
       
-      // Cache the projects
-      await localDataSource.cacheProjects(remoteProjects);
+      // Convert to local models and cache
+      final localModels = remoteProjects
+          .map((p) => ProjectLocalModel.fromEntity(p.toJson()))
+          .toList();
+      await localDataSource.cacheProjects(localModels);
       
-      // Return as entities
       return Right(remoteProjects);
-    } on ServerException catch (e) {
-      // If remote fails, try cache
+    } on ServerException {
+      // Fallback to cache on network failure
       try {
         final cachedProjects = await localDataSource.getCachedProjects();
-        return Right(cachedProjects);
-      } on CacheException {
-        return Left(ServerFailure(e.message));
+        final entities = cachedProjects
+            .map((p) => ProjectModel.fromJson(p.toEntity()))
+            .toList();
+        return Right(entities);
+      } on CacheException catch (e) {
+        return Left(CacheFailure(e.message));
       }
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
     }
   }
 
   @override
   Future<Either<Failure, void>> addProject(ProjectEntity project) async {
     try {
-      // Get current projects
       final currentProjects = await localDataSource.getCachedProjects();
-      
-      // Add new project
-      final newProject = ProjectModel.fromEntity(project);
-      final updatedProjects = [...currentProjects, newProject];
-      
-      // Save to cache
-      await localDataSource.cacheProjects(updatedProjects);
-      
+      final newProject = ProjectLocalModel.fromEntity(
+        ProjectModel.fromEntity(project).toJson(),
+      );
+      await localDataSource.cacheProjects([...currentProjects, newProject]);
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
@@ -64,17 +63,16 @@ class ProjectRepositoryImpl implements ProjectRepository {
   @override
   Future<Either<Failure, void>> updateProject(ProjectEntity project) async {
     try {
-      // Get current projects
       final currentProjects = await localDataSource.getCachedProjects();
-      
-      // Update project
       final updatedProjects = currentProjects.map((p) {
-        return p.id == project.id ? ProjectModel.fromEntity(project) : p;
+        if (p.id == project.id) {
+          return ProjectLocalModel.fromEntity(
+            ProjectModel.fromEntity(project).toJson(),
+          );
+        }
+        return p;
       }).toList();
-      
-      // Save to cache
       await localDataSource.cacheProjects(updatedProjects);
-      
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
@@ -86,9 +84,7 @@ class ProjectRepositoryImpl implements ProjectRepository {
     try {
       final projects = await localDataSource.getCachedProjects();
       final project = projects.firstWhere((p) => p.id == id);
-      return Right(project);
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
+      return Right(ProjectModel.fromJson(project.toEntity()));
     } catch (e) {
       return Left(CacheFailure('Project not found'));
     }

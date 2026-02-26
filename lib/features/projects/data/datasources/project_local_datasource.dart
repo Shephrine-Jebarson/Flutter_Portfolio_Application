@@ -1,36 +1,34 @@
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../core/error/exceptions.dart';
-import '../models/project_model.dart';
+import 'package:hive/hive.dart';
+import '../models/project_local_model.dart';
 
-/// Contract for local data source
+/// Local data source for project storage using Hive
 abstract class ProjectLocalDataSource {
-  Future<List<ProjectModel>> getCachedProjects();
-  Future<void> cacheProjects(List<ProjectModel> projects);
+  Future<List<ProjectLocalModel>> getCachedProjects();
+  Future<void> cacheProjects(List<ProjectLocalModel> projects);
+  Future<void> clearCache();
 }
 
-/// Implementation of local data source using SharedPreferences
 class ProjectLocalDataSourceImpl implements ProjectLocalDataSource {
-  final SharedPreferences sharedPreferences;
-  static const cachedProjectsKey = 'CACHED_PROJECTS';
-
-  ProjectLocalDataSourceImpl(this.sharedPreferences);
+  static const String _boxName = 'projects';
+  
+  @override
+  Future<List<ProjectLocalModel>> getCachedProjects() async {
+    final box = await Hive.openBox<ProjectLocalModel>(_boxName);
+    return box.values.toList();
+  }
 
   @override
-  Future<List<ProjectModel>> getCachedProjects() async {
-    final jsonString = sharedPreferences.getString(cachedProjectsKey);
-    if (jsonString != null) {
-      final List<dynamic> jsonList = json.decode(jsonString);
-      return jsonList.map((json) => ProjectModel.fromJson(json)).toList();
-    } else {
-      throw CacheException('No cached data found');
+  Future<void> cacheProjects(List<ProjectLocalModel> projects) async {
+    final box = await Hive.openBox<ProjectLocalModel>(_boxName);
+    await box.clear();
+    for (var project in projects) {
+      await box.put(project.id, project);
     }
   }
 
   @override
-  Future<void> cacheProjects(List<ProjectModel> projects) async {
-    final jsonList = projects.map((project) => project.toJson()).toList();
-    final jsonString = json.encode(jsonList);
-    await sharedPreferences.setString(cachedProjectsKey, jsonString);
+  Future<void> clearCache() async {
+    final box = await Hive.openBox<ProjectLocalModel>(_boxName);
+    await box.clear();
   }
 }

@@ -86,42 +86,71 @@ class _AppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final projectCount = context.select<ProjectProvider, int>((p) => p.projectCount);
+    final isOffline = context.select<ProjectProvider, bool>((p) => p.isOffline);
     
     return Container(
       padding: const EdgeInsets.all(20),
-      child: Row(
+      child: Column(
         children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(
-              Icons.arrow_back_ios_rounded,
-              color: isDark ? Colors.white : const Color(0xFF0D47A1),
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'My Projects',
-                  style: GoogleFonts.poppins(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : const Color(0xFF0D47A1),
-                  ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(
+                  Icons.arrow_back_ios_rounded,
+                  color: isDark ? Colors.white : const Color(0xFF0D47A1),
+                  size: 24,
                 ),
-                Text(
-                  '$projectCount projects completed',
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: isDark ? Colors.white.withOpacity(0.7) : const Color(0xFF1565C0),
-                  ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'My Projects',
+                      style: GoogleFonts.poppins(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF0D47A1),
+                      ),
+                    ),
+                    Text(
+                      '$projectCount projects completed',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: isDark ? Colors.white.withOpacity(0.7) : const Color(0xFF1565C0),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+          if (isOffline)
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange, width: 1),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.cloud_off, color: Colors.orange, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Offline Mode - Showing cached data',
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.orange,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );

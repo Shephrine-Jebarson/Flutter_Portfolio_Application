@@ -7,7 +7,7 @@ import '../../domain/usecases/get_projects.dart';
 import '../../domain/usecases/update_project.dart';
 import '../state/project_state.dart';
 
-/// Provider for managing project state with pagination
+/// Provider for managing project state with pagination and offline support
 class ProjectProvider extends ChangeNotifier {
   final GetProjects getProjectsUseCase;
   final AddProject addProjectUseCase;
@@ -31,6 +31,9 @@ class ProjectProvider extends ChangeNotifier {
   bool get isLoading => _state is ProjectLoading;
   bool get hasError => _state is ProjectError;
   bool get hasData => _state is ProjectLoaded;
+  
+  bool _isOffline = false;
+  bool get isOffline => _isOffline;
 
   // Pagination
   static const int _pageSize = 3;
@@ -41,7 +44,7 @@ class ProjectProvider extends ChangeNotifier {
   bool get hasMore => _hasMore;
   bool get isLoadingMore => _isLoadingMore;
 
-  /// Load all projects
+  /// Load all projects with offline fallback
   Future<void> loadProjects() async {
     _state = const ProjectLoading();
     notifyListeners();
@@ -50,10 +53,13 @@ class ProjectProvider extends ChangeNotifier {
 
     result.fold(
       (failure) {
+        _isOffline = failure.message.contains('cache') || 
+                     failure.message.contains('network');
         _state = ProjectError(failure.message);
         notifyListeners();
       },
       (projects) {
+        _isOffline = false;
         _allProjects = projects;
         _currentPage = 0;
         _displayedProjects = [];

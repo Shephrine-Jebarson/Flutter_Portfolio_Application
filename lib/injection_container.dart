@@ -1,6 +1,8 @@
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'features/projects/data/datasources/project_local_datasource.dart';
 import 'features/projects/data/datasources/project_remote_datasource.dart';
+import 'features/projects/data/models/project_local_model.dart';
 import 'features/projects/data/repositories/project_repository_impl.dart';
 import 'features/projects/domain/repositories/project_repository.dart';
 import 'features/projects/domain/usecases/add_project.dart';
@@ -9,12 +11,16 @@ import 'features/projects/domain/usecases/get_projects.dart';
 import 'features/projects/domain/usecases/update_project.dart';
 import 'features/projects/presentation/providers/project_provider.dart';
 
-/// Dependency Injection Container
+/// Dependency Injection Container with Hive initialization
 class InjectionContainer {
   static late SharedPreferences _sharedPreferences;
 
-  /// Initialize dependencies
+  /// Initialize dependencies including Hive
   static Future<void> init() async {
+    // Initialize Hive
+    await Hive.initFlutter();
+    Hive.registerAdapter(ProjectLocalModelAdapter());
+    
     // External dependencies
     _sharedPreferences = await SharedPreferences.getInstance();
   }
@@ -22,7 +28,7 @@ class InjectionContainer {
   /// Get ProjectProvider with all dependencies
   static ProjectProvider getProjectProvider() {
     // Data sources
-    final localDataSource = ProjectLocalDataSourceImpl(_sharedPreferences);
+    final localDataSource = ProjectLocalDataSourceImpl();
     final remoteDataSource = ProjectRemoteDataSourceImpl();
 
     // Repository
